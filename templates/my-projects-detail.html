@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load filters %}
+{% block content %}
+    <div class="container-fluid">
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        {% for pr in project %}
+                            <h1><strong>{{ pr.project_name }}</strong> - loyihasi haqida batafsil ma'lumot</h1>
+                        {% endfor %}
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="content">
+            <div class="card" style="height: 100dvh">
+                <div class="card-header">
+                    <div class="card-tools">
+                        <i id="{{ project.pk }}" data-toggle="modal" data-target="#add-phase"
+                           class="fa-solid fa-circle-plus btn btn-outline-dark"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+                            <div class="row">
+                                <div class="col-12 col-sm-4">
+                                    <div class="info-box bg-light">
+                                        <div class="info-box-content">
+                                            <span class="info-box-text text-center text-muted">Loyiha budjeti</span>
+                                            {% for ph in project %}
+                                                <span class="info-box-number text-center text-muted mb-0">{{ ph.project_budget }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <div class="info-box bg-light">
+                                        <div class="info-box-content">
+                                            <span class="info-box-text text-center text-muted">Sarflangan pul</span>
+                                            {% for ph in project %}
+                                                <span class="info-box-number text-center text-muted mb-0">{{ ph.project_spent_money }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <div class="info-box bg-light">
+                                        <div class="info-box-content">
+                                            <span class="info-box-text text-center text-muted">Tugash vaqti</span>
+                                            {% for ph in project %}
+                                                <span class="info-box-number text-center text-muted mb-0">{{ ph.project_deadline | format_date }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="text-start mt-2 border-bottom border-dark"
+                                                 style="margin-bottom: 3%">
+                                                <h4><strong>Ushbu loyihaga tegishli faza va tasklar</strong></h4>
+                                            </div>
+                                            {% for data in datas %}
+                                                <div class="row">
+                                                    <div class="col-10">
+                                                        {% with id='collapse'|generate_random %}
+                                                            <div class="row bg-light mb-3 chevron {{ data.phase_id }}"
+                                                                 data-toggle="collapse" data-target="#{{ id }}"
+                                                                 style="height: 50px;box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;">
+                                                                <div class="col-10">
+                                                                    <p id="phase{{ data.phase_id }}">{{ data.phase }}<br>
+                                                                        <strong>Tugatildi :</strong> {{ data.phase_done_percentage }}%</p>
+
+                                                                </div>
+
+                                                            </div>
+                                                            </div>
+                                                            <div id="icons-panel{{ data.phase_id }}"
+                                                                 class="col-2 bg-light mb-3 text-center pt-3"
+                                                                 style="box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;">
+                                                                <i class="fa-solid fa-pen-to-square mx-1 {{ data.phase_id }} icon-buttons"
+                                                                   style="cursor: pointer"></i>
+                                                                <i class="fa-solid fa-trash trash-icon mx-1"
+                                                                   data-toggle="modal" data-target="#delete-phase"
+                                                                   id="{{ data.phase_id }}" style="cursor: pointer"></i>
+                                                                <i id="chevron{{ data.phase_id }}"
+                                                                   data-toggle="collapse" data-target="#{{ id }}"
+                                                                   class="fa-solid fa-chevron-right chevron mx-1 collapse-icon{{ data.phase_id }}"></i>
+                                                            </div>
+                                                            </div>
+                                                            {% for task in data.tasks %}
+                                                                {% with task.task_done_percentage|to_int as percentage %}
+                                                                    <div class="card {% if percentage > 0 and percentage < 100 %}bg-yellow {% elif percentage == 100 %}bg-green{% endif %} collapse"
+                                                                         id="{{ id }}">
+                                                                        <div class="card-body row">
+                                                                            <div class="col-11">
+                                                                                <label id="label{{ task.id }}">{{ task.task_name }}</label>
+                                                                                <br><strong>Tugatilganligi
+                                                                                :</strong> {{ task.task_done_percentage }}%
+                                                                            </div>
+                                                                            <div class="col-1">
+                                                                                <i style="cursor: pointer"
+                                                                                   data-toggle="modal"
+                                                                                   data-target="#finish-task"
+                                                                                   class="fa-solid fa-flag-checkered task-finish {{ task.id }}"></i>
+                                                                                <i class="fa-solid fa-pen-to-square mx-1 {{ task.id }} edit-task-icon"
+                                                                                   style="cursor: pointer"></i>
+                                                                                <i class="fa-solid fa-trash delete-task-icon trash-icon mx-1"
+                                                                                   data-toggle="modal"
+                                                                                   data-target="#delete-task"
+                                                                                   id="{{ task.id }}"
+                                                                                   style="cursor: pointer"></i>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                {% endwith %}
+                                                            {% endfor %}
+                                                        {% endwith %}
+                                            {% endfor %}
+
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
+                            {% for ph in project %}
+                                <h3 class="text-primary"><i class="fas fa-paint-brush"></i>{{ ph.project_name }} </h3>
+                                <p class="text-muted">{{ ph.project_description }}</p>
+                                <br>
+                                <div class="text-muted">
+                                    <p class="text-sm">Loyiha egasi
+                                        <b class="d-block">{{ ph.author.get_full_name }}</b>
+                                    </p>
+                                    <p class="text-sm">Loyiha kuratori
+                                        <b class="d-block">{{ ph.project_curator }}</b>
+                                    </p>
+                                </div>
+                            {% endfor %}
+                            <h5 class="mt-5 text-muted">Loyiha fayllari</h5>
+                            <ul class="list-unstyled">
+                                {% for doc in documents %}
+                                    <li>
+                                        {% if doc.url %}
+                                            <a href="{{ doc.url }}" class="btn-link text-secondary"><i
+                                                    class="fa-solid fa-{{ doc.type }}" style="margin-right: 2%"></i>
+                                                {{ doc.url }}<br>
+                                                <small>{{ doc.created_at | format_date }}</small>
+                                            </a>
+                                        {% else %}
+                                            <a href="" class="btn-link text-secondary" download="{{ doc.document }}"><i
+                                                    class="fa-solid fa-{{ doc.type }}" style="margin-right: 2%"></i>
+                                                <embed href="{{ doc.document }}">
+                                                {{ doc.document }}<br>
+                                                <small>{{ doc.created_at | format_date }}</small>
+                                            </a>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="text-start mt-5 mb-3">
+                                <button data-toggle="modal" data-target="#addfile" class="btn btn-sm btn-primary"><i class="fa-solid fa-upload"></i> Fayl
+                                    yuklash
+                                </button>
+                                <button data-toggle="modal" data-target="#delete-file" class="btn btn-sm btn-danger">
+                                    <i class="fa-solid fa-trash"></i> O'chirish
+                                </button>
+                            {% for pr in project %}
+                                <button name="{{ pr.pk }}" id="archive" class="btn btn-sm bg-green"><i class="fa-solid fa-download"></i> Arxiv sifatida yuklab olish
+                                </button>
+                            {% endfor %}
+                                <div id="addfile" class="modal fade" role="dialog">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1>Faylni qo'shish</h1>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" enctype="multipart/form-data" id="add-file-form">
+                                                    {% csrf_token %}
+                                                    {{ form.as_p }}
+                                                    <button id="add-url" type="button" class="btn btn-primary">Url
+                                                        kiritish
+                                                    </button>
+                                                    <div class="modal-footer">
+                                                        <button type="submit" class="btn btn-primary">Ha</button>
+                                                        <button class="btn btn-primary" data-dismiss="modal">Bekor
+                                                            qilish
+                                                        </button>
+                                                    </div>
+
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div id="delete-file" class="modal fade" role="dialog">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1>Fayllarni tanlang</h1>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" enctype="multipart/form-data" id="delete-file-form">
+                                                    {% csrf_token %}
+                                                    {% for document in documents %}
+                                                        <div class="row">
+                                                            <div class="col-1">
+                                                                <input class="del-files" type="checkbox"
+                                                                       id="{{ document.pk }}">
+                                                            </div>
+                                                            <div class="col">
+                                                                {{ document.document }}
+
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                    <div class="modal-footer">
+                                                        <button id="del-confirm" type="button" class="btn btn-danger">
+                                                            O'chirish
+                                                        </button>
+                                                        <button class="btn btn-primary" data-dismiss="modal">Bekor
+                                                            qilish
+                                                        </button>
+                                                    </div>
+
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div id="add-phase" class="modal fade" role="dialog">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1>Faza yaratish boshlandi</h1>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" id="phase-form">
+                                                    <label> Faza nomini yozing :
+                                                        <input class="form-control mb-4" type="text" name="phase"
+                                                               id="phase-input">
+                                                    </label><br>
+                                                    <hr>
+                                                    <div class="add-task" id="add-task">
+                                                        <label>Task qo'shish</label>
+                                                        <i class="fa-solid fa-circle-plus"></i>
+                                                    </div>
+                                                    <hr>
+                                                </form>
+                                                <div class="modal-footer">
+                                                    <button id="save-all-data" class="btn btn-primary">Saqlash</button>
+                                                    <button data-dismiss="modal" class="btn btn-secondary">Bekor
+                                                        qilish
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                            <div id="delete-phase" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1>Fazani o'chirasizmi ?</h1>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button id="delete-icon-confirm" class="btn btn-danger">O'chirish</button>
+                                            <button data-dismiss="modal" class="btn btn-secondary">Bekor qilish</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div id="delete-task" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1>Task o'chirasizmi ?</h1>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button id="delete-task-confirm" class="btn btn-danger">O'chirish</button>
+                                        <button data-dismiss="modal" class="btn btn-secondary">Bekor qilish</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div id="finish-task" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1>Nechi foizga tugatamiz ?</h1>
+                                </div>
+                                <div class="modal-body">
+                                    <input id="task-done" name="task-complete-percentage" placeholder="0"
+                                           class="form-control"/>
+                                </div>
+                                <div class="modal-footer">
+                                    <button id="finish-task-confirm" class="btn btn-danger">Saqlash</button>
+                                    <button data-dismiss="modal" class="btn btn-secondary">Bekor qilish</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+    </div>
+    </div>
+    </div>
+    </div>
+    </section>
+    </div>
+{% endblock content %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load filters %}
+    <section class="content">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Loyihalar</h3>
+
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+              <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-striped projects">
+              <thead>
+                  <tr>
+                      <th style="width: 1%">
+                          No
+                      </th>
+                      <th style="width: 20%">
+                          Loyiha nomi
+                      </th>
+                      <th style="width: 30%">
+                          Loyiha egasi
+                      </th>
+                      <th>
+                          Loyiha bajarilganlik darajasi
+                      </th>
+                      <th style="width: 8%" class="text-center">
+                          Budgeti
+                      </th>
+                      <th style="width: 20%">
+                      </th>
+                  </tr>
+              </thead>
+              <tbody>
+              {% for project in projects %}
+                  <tr>
+                      <td>
+                          {{ forloop.counter }}
+                      </td>
+                      <td>
+                          <a>
+                              {{ project.project_name }}
+                          </a>
+                          <br/>
+                          <small>
+                              <strong>Boshlandi : </strong> {{ project.project_start_date | format_date }}<br>
+                              <strong>Tugaydi : </strong> {{ project.project_deadline | format_date }}
+                          </small>
+                      </td>
+                      <td>
+                          <div class="list-inline row">
+                              <div class="col-2 text-center">
+                                  <img style="max-width: 40px" src="{{ project.author.avatar.url }}">
+
+                              </div>
+                              <div class="col-10">
+                                  <p>{{ project.author.get_full_name }}</p>
+
+                              </div>
+                          </div>
+                      </td>
+                      <td class="project_progress">
+                          <div class="progress progress-sm">
+                              <div class="progress-bar bg-green" role="progressbar" aria-valuenow="{{ project.project_done_percentage }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ project.project_done_percentage }}%">
+                              </div>
+                          </div>
+                          <small>
+                              {{ project.project_done_percentage }}% Tugatilgan
+                          </small>
+                      </td>
+                      <td class="project-state">
+                          <p>{{ project.project_budget }}</p>
+                      </td>
+                      <td class="project-actions text-right">
+                          <a class="btn btn-primary btn-sm" href="{% url 'get-project' project.pk %}">
+                              <i class="fas fa-folder">
+                              </i>
+                              Batafsil
+                          </a>
+{#                          <a class="btn btn-info btn-sm" href="#">#}
+{#                              <i class="fas fa-pencil-alt">#}
+{#                              </i>#}
+{#                              Edit#}
+{#                          </a>#}
+{#                          <a class="btn btn-danger btn-sm" href="#">#}
+{#                              <i class="fas fa-trash">#}
+{#                              </i>#}
+{#                              Delete#}
+{#                          </a>#}
+                      </td>
+                  </tr>
+              {% endfor %}
+              </tbody>
+          </table>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+
+    </section>
+
+
+{% endblock content %}
