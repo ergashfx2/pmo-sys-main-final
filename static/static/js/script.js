@@ -209,6 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+
 document.addEventListener('DOMContentLoaded', function () {
     var task_id
     var label
@@ -238,6 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     location.reload()
                 })
             }
+
         })
     })
 })
@@ -341,6 +343,118 @@ document.addEventListener('DOMContentLoaded',function (){
 
 })
 
+document.addEventListener('DOMContentLoaded',function (){
+      document.getElementById('post-comment').addEventListener('click',function (){
+                        var token = getCookie('csrftoken')
+        var comment = document.getElementById('comment')
+                fetch(`post-comment/${comment.classList[1]}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json",
+                        "X-CSRFToken": token
+                    },
+                    body: JSON.stringify({'comment': comment.value }),
+
+
+                }).then(res => {
+                   location.reload()
+                })
+
+    })
+          document.getElementById('post-problem').addEventListener('click',function (){
+                        var token = getCookie('csrftoken')
+        var comment = document.getElementById('problem')
+                fetch(`post-problem/${comment.classList[1]}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json",
+                        "X-CSRFToken": token
+                    },
+                    body: JSON.stringify({'problem': comment.value }),
+
+
+                }).then(res => {
+                   location.reload()
+                })
+
+    })
+    document.querySelectorAll('.edit-comment').forEach(value => {
+        value.addEventListener('click',function (){
+            var c_id = value.classList[4]
+            const uuid = crypto.randomUUID()
+            var comment = document.getElementById(c_id)
+            comment.innerHTML = `<textarea class="form-control" type="text" id="${uuid}">${comment.textContent.trim()}</textarea>`
+                                document.addEventListener('keypress',function (e){
+                if(e.key === 'Enter'){
+                    var token = getCookie('csrftoken')
+                    var new_comment = document.getElementById(`${uuid}`)
+                                                fetch(`edit-comment/${c_id}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json",
+                        "X-CSRFToken": token
+                    },
+                    body: JSON.stringify({'comment': new_comment.value }),
+
+
+                }).then(res => {
+                   location.reload()
+                })
+                }
+
+        })
+        })
+
+    })
+        document.querySelectorAll('.edit-problem').forEach(value => {
+        value.addEventListener('click',function (){
+            var p_id = value.classList[4]
+            const uuid = crypto.randomUUID()
+            var problem = document.getElementById(p_id)
+            problem.innerHTML = `<textarea class="form-control" type="text" id="${uuid}">${problem.textContent.trim()}</textarea>`
+                                document.addEventListener('keypress',function (e){
+                if(e.key === 'Enter'){
+                    var token = getCookie('csrftoken')
+                    var new_problem = document.getElementById(`${uuid}`)
+                                                fetch(`edit-problem/${p_id}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json",
+                        "X-CSRFToken": token
+                    },
+                    body: JSON.stringify({'problem': new_problem.value }),
+
+
+                }).then(res => {
+                   location.reload()
+                })
+                }
+
+        })
+
+        })
+                        document.querySelectorAll('.delete-comment').forEach(val => {
+                val.addEventListener('click',function (){
+                    fetch(`/projects/my-projects/detail/delete-comment/${val.classList[4]}`).then(res=>{
+                        location.reload()
+                    })
+                })
+            } )
+
+                                    document.querySelectorAll('.delete-problem').forEach(val => {
+                val.addEventListener('click',function (){
+                    fetch(`/projects/my-projects/detail/delete-problem/${val.classList[4]}`).then(res=>{
+                        location.reload()
+                    })
+                })
+            } )
+
+    })
+})
+
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
     var archive_button = document.getElementById('archive');
     var p_id = archive_button.name;
@@ -368,3 +482,11 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+document.addEventListener('DOMContentLoaded',function (){
+    var filter = document.getElementById('filter-table');
+    filter.addEventListener('click',function (){
+        alert('Clicked filter')
+    })
+
+
+})

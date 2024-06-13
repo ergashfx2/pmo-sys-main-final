@@ -21,7 +21,7 @@
 
                             <ul class="list-group list-group-unbordered mb-3">
                                 <li class="list-group-item">
-                                    <b>Loyihalar soni</b> <a class="float-right">{{ projects_count }}</a>
+                                    <b>Loyihalar soni</b> <a class="float-right">{% if projects_count %}{{ projects_count }}{% else %}0{% endif %}</a>
                                 </li>
                                 <li class="list-group-item">
                                     <b>Ro'li</b> <a class="float-right">{{ user.role }}</a>
@@ -70,9 +70,6 @@
                             <div class="row">
                                 <div class="col-9">
                                     <h1>Ruxsat berilgan loyihalar</h1>
-                                </div>
-                                <div class="col-3">
-                                    <a class="btn btn-primary mt-2" href="{% url 'hodimlar:logout' %}"> Chiqib ketish</a>
                                 </div>
                             </div>
                         </div>

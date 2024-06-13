@@ -2,7 +2,8 @@ from django.contrib.auth import get_user_model
 from django.forms import forms, ModelForm
 
 from hodimlar.models import Department, Blog
-from loyihalar.models import Project, status_choices,level_choices,size_choices,speed_choices,type_choices
+from loyihalar.models import Project, status_choices, level_choices, size_choices, speed_choices, type_choices, \
+    PermittedProjects
 from .models import Documents, Phase, Task
 from django import forms
 
@@ -12,24 +13,23 @@ User = get_user_model()
 class CreateProjectForm(ModelForm):
     class Meta:
         model = Project
-        exclude = ['author', 'project_start_date']
+        exclude = ['author', 'project_start_date','project_spent_money','project_status','project_done_percentage']
         labels = {
             'project_curator': 'Proyekt kuraschisi',
             'project_name': 'Proyekt nomi',
-            'project_blog': 'Blog',
+            'project_blog': 'Blok',
             'project_size': 'Hajmi',
             'project_level': 'Darajasi',
-            'project_speed': 'Tezligi',
+            'project_speed': 'Muddati',
             'project_type': 'Turi',
-            'project_department': 'Bo\'lim',
-            'project_team': 'Jamoa',
-            'project_description': 'Izohi',
-            'project_done_percentage': 'Bajarilgan foiz',
-            'project_deadline': 'Muddati',
+            'project_department': 'Departament',
+            'project_team': 'Biriktirilgan hodimlar',
+            'project_description': 'Qisqacha',
+            'project_deadline': 'Tugash sanasi',
             'project_budget': 'Budjeti',
             'project_status': 'Statusi',
             'project_spent_money': 'Xarajatlar',
-            'project_departments': 'Bo\'limlar',
+            'project_departments': 'Departamentlar',
         }
         widgets = {
             'project_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -38,8 +38,7 @@ class CreateProjectForm(ModelForm):
             'project_speed': forms.Select(attrs={'class': 'form-control'},choices=speed_choices),
             'project_type': forms.Select(attrs={'class': 'form-control'},choices=type_choices),
             'project_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'project_done_percentage': forms.TextInput(attrs={'class': 'form-control'}),
-            'project_deadline': forms.DateInput(attrs={'class': 'form-control'}),
+            'project_deadline': forms.DateInput(attrs={'class': 'form-control','type':'date'}),
             'project_budget': forms.TextInput(attrs={'class': 'form-control'}),
             'project_status': forms.Select(attrs={'class': 'form-control'},choices=status_choices),
             'project_spent_money': forms.TextInput(attrs={'class': 'form-control'}),
@@ -47,6 +46,7 @@ class CreateProjectForm(ModelForm):
             'project_blog': forms.Select(attrs={'class': 'form-control'}),
             'project_team': forms.SelectMultiple(attrs={'class': 'form-control'}),
             'project_departments': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'project_department': forms.Select(attrs={'class': 'form-control'}),
         }
 
 
@@ -55,22 +55,21 @@ class EditProjectForm(ModelForm):
         model = Project
         exclude = ['author', 'project_start_date']
         labels = {
-            'project_curator': 'Proyekt kuraschisi',
-            'project_name': 'Proyekt nomi',
-            'project_blog': 'Blog',
+            'project_curator': 'Loyiha kuratori',
+            'project_name': 'Loyiha nomi',
+            'project_blog': 'Blok',
             'project_size': 'Hajmi',
             'project_level': 'Darajasi',
-            'project_speed': 'Tezligi',
+            'project_speed': 'Loyiha muddati',
             'project_type': 'Turi',
-            'project_department': 'Bo\'lim',
-            'project_team': 'Jamoa',
-            'project_description': 'Izohi',
-            'project_done_percentage': 'Bajarilgan foiz',
+            'project_department': 'Departament',
+            'project_team': 'Biriktirilgan hodimlar',
+            'project_description': "Qisqacha ma'lumot",
             'project_deadline': 'Muddati',
             'project_budget': 'Budjeti',
             'project_status': 'Statusi',
             'project_spent_money': 'Xarajatlar',
-            'project_departments': 'Bo\'limlar',
+            'project_departments': 'Departamentlar',
         }
         widgets = {
             'project_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -79,7 +78,6 @@ class EditProjectForm(ModelForm):
             'project_speed': forms.Select(attrs={'class': 'form-control'},choices=speed_choices),
             'project_type': forms.Select(attrs={'class': 'form-control'},choices=type_choices),
             'project_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'project_done_percentage': forms.TextInput(attrs={'class': 'form-control'}),
             'project_deadline': forms.DateInput(attrs={'class': 'form-control'}),
             'project_budget': forms.TextInput(attrs={'class': 'form-control'}),
             'project_status': forms.Select(attrs={'class': 'form-control'},choices=status_choices),
@@ -88,6 +86,7 @@ class EditProjectForm(ModelForm):
             'project_blog': forms.Select(attrs={'class': 'form-control'}),
             'project_team': forms.SelectMultiple(attrs={'class': 'form-control'}),
             'project_departments': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'project_department': forms.Select(attrs={'class': 'form-control'}),
         }
 
 
@@ -112,3 +111,15 @@ class AddTaskForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ['task_name']
+
+class PermittedProjectsForm(forms.ModelForm):
+    class Meta:
+        model = PermittedProjects
+        fields = ['user']
+        exclude = ['project']
+        labels = {
+            'user':"Foydalanuvchini tanlang"
+        }
+        widgets = {
+            'user':forms.Select(attrs={'class':'form-control'})
+        }

@@ -10,6 +10,12 @@ status_choices = (
     ('Tugatilgan', "Tugatilgan"),
 )
 
+status_problem_choices = (
+    ('Yangi', "Yangi"),
+    ('Ishlanmoqda', "Ishlanmoqda"),
+    ('Hal qilindi', "Hal qilindi"),
+)
+
 size_choices = (
     ('Multi', "Multi"),
     ('Mono', "Mono"),
@@ -38,18 +44,19 @@ level_choices = (
     ("O'ta yuqori", "O'ta yuqori"),
 )
 
+
 class Project(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     author = models.ForeignKey(User, models.DO_NOTHING, related_name='author')
-    project_curator = models.ForeignKey(User,related_name='curator',on_delete=models.DO_NOTHING)
+    project_curator = models.ForeignKey(User, related_name='curator', on_delete=models.DO_NOTHING)
     project_name = models.CharField(max_length=200)
     project_blog = models.ForeignKey(Blog, models.CASCADE, related_name='blog')
     project_departments = models.ManyToManyField(Department)
-    project_size = models.CharField(max_length=200)
-    project_level = models.CharField(max_length=200)
-    project_speed = models.CharField(max_length=200)
-    project_type = models.CharField(max_length=200)
-    # project_departments = models.ForeignKey(Department,on_delete=models.DO_NOTHING, related_name='department')
+    project_size = models.CharField(max_length=200,choices=size_choices)
+    project_level = models.CharField(max_length=200,choices=level_choices)
+    project_speed = models.CharField(max_length=200,choices=speed_choices)
+    project_type = models.CharField(max_length=200,choices=type_choices)
+    project_department = models.ForeignKey(Department, on_delete=models.DO_NOTHING, related_name='department')
     project_team = models.ManyToManyField(User)
     project_description = models.TextField()
     project_done_percentage = models.CharField(max_length=20, default=0)
@@ -106,7 +113,7 @@ class Documents(models.Model):
     project = models.ForeignKey(Project, models.CASCADE)
     document = models.FileField(upload_to='', blank=True)
     url = models.CharField(max_length=200, blank=True)
-    type = models.CharField(max_length=150,default='url')
+    type = models.CharField(max_length=150, default='url')
     created_at = models.DateField(auto_now=True)
     update_at = models.DateField(auto_now=True)
 
@@ -115,10 +122,26 @@ class Documents(models.Model):
 
 
 class Problems(models.Model):
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
     author = models.ForeignKey(User, models.CASCADE)
     title = models.CharField(max_length=250)
     project = models.ForeignKey(Project, models.CASCADE)
-    description = models.TextField()
+    problem = models.TextField()
+    status = models.CharField(max_length=30, choices=status_problem_choices, default='Yangi')
+    created_at = models.DateField(auto_now=True,editable=False)
+    update_at = models.DateField(auto_now=True)
+
+
+class Comments(models.Model):
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4, editable=False)
+    author = models.ForeignKey(User, models.CASCADE)
+    project = models.ForeignKey(Project, models.CASCADE)
+    comment = models.TextField()
+    created_at = models.DateField(auto_now=True,editable=False)
+    update_at = models.DateField(auto_now=True)
+
+    def __str__(self):
+        return self.author.get_full_name()
 
 
 class PermittedProjects(models.Model):

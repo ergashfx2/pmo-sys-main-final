@@ -24,9 +24,9 @@ class CreateUserForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     position = forms.CharField(label='Lavozimini tanlang', max_length=150)
-    blogs = {blok.id: blok.blog_name for blok in Blog.objects.all()}
-    departments = {department.id: department.department_name for department in Department.objects.all()}
-    blok = forms.ChoiceField(
+    blogs = {blog.blog_name: blog.blog_name for blog in Blog.objects.all()}
+    departments = {department.department_name: department.department_name for department in Department.objects.all()}
+    blog = forms.ChoiceField(
         label='Blokni tanlang',
         choices=blogs.items(),
         widget=forms.Select(attrs={'class': 'form-control'})
@@ -46,7 +46,7 @@ class CreateUserForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
         fields = [
-            'username', 'first_name', 'last_name', 'phone', 'email', 'role', 'position', 'department', 'blok', 'image', 'password'
+            'username', 'first_name', 'last_name', 'phone', 'email', 'role', 'position', 'department', 'blog', 'image', 'password'
         ]
 
     def save(self, commit=True):

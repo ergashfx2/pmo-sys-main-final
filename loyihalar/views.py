@@ -9,9 +9,9 @@ from django.views.generic import CreateView, DetailView, DeleteView, UpdateView
 from zipfile import ZipFile
 
 from config import settings
-from .forms import CreateProjectForm, EditProjectForm, AddFileForm, AddPhaseForm, AddTaskForm
+from .forms import CreateProjectForm, EditProjectForm, AddFileForm, AddPhaseForm, AddTaskForm, PermittedProjectsForm
 from .formsets import TaskFormSet
-from .models import Project, Phase, Task, Documents
+from .models import Project, Phase, Task, Documents, Comments, Problems, PermittedProjects
 from django.http import HttpResponse
 
 import shutil
@@ -71,6 +71,8 @@ def myProjects(request):
 @login_required
 def get_project(request, pk):
     project = Project.objects.filter(pk=pk)
+    comments = Comments.objects.filter(project_id=pk)
+    problems = Problems.objects.filter(project_id=pk)
     datas = []
     form = AddFileForm
     phases = Phase.objects.filter(project_id=project[0].id)
@@ -81,7 +83,7 @@ def get_project(request, pk):
             'tasks': Task.objects.filter(phase=phase.id)
         })
     documents = Documents.objects.filter(project=project[0].id)
-    return render(request, 'project_detail.html', context={'project': project, 'datas': datas, 'documents': documents})
+    return render(request, 'project_detail.html', context={'project': project, 'datas': datas, 'documents': documents,'comments':comments,'problems':problems})
 
 
 @login_required
@@ -91,13 +93,15 @@ def DetailMyProjects(request, pk):
     form3 = TaskFormSet()
     project = Project.objects.filter(pk=pk)
     datas = []
+    comments = Comments.objects.filter(project_id=project[0].id)
+    problems = Problems.objects.filter(project_id=project[0].id)
     phases = Phase.objects.filter(project_id=project[0].id)
     for phase in phases:
         datas.append({
             'phase': phase.phase_name,
             'phase_id': phase.pk,
             'phase_done_percentage': int(phase.phase_done_percentage),
-            'tasks': Task.objects.filter(phase=phase.id)
+            'tasks': Task.objects.filter(phase=phase.id),
         })
     if request.method == 'POST':
         form = AddFileForm(data=request.POST, files=request.FILES)
@@ -130,8 +134,8 @@ def DetailMyProjects(request, pk):
 
     documents = Documents.objects.filter(project=project[0].id).order_by('created_at')
     return render(request, 'my-projects-detail.html',
-                  context={'project': project, 'datas': datas, 'documents': documents, 'form': form, 'form2': form2,
-                           'form3': form3})
+                  context={'project': project, 'datas': datas,'comments':comments,'problems':problems, 'documents': documents, 'form': form, 'form2': form2,
+                           'form3': form3,'project_id':pk})
 
 
 @login_required
@@ -278,3 +282,78 @@ def qualification(request):
 @login_required
 def spending(request):
     return render(request, 'spendings.html')
+
+
+@login_required
+def post_comment(request,pk):
+    if request.method == 'POST':
+        comment = json.loads(request.body)['comment']
+        Comments.objects.create(project_id=pk,author=request.user ,comment=comment)
+        return redirect('my-projects-detail')
+    return redirect('my-projects-detail')
+
+@login_required
+def edit_comment(request,pk):
+    if request.method == 'POST':
+        comment = json.loads(request.body)['comment']
+        Comments.objects.filter(pk=pk).update(comment=comment)
+        pk = Comments.objects.get(pk=pk).project.pk
+        return redirect('my-projects-detail',pk)
+    return redirect('my-projects-detail',pk)
+
+
+@login_required
+def delete_comment(request,pk):
+    Comments.objects.filter(pk=pk).delete()
+    pk = Comments.objects.get(pk=pk).project.pk
+    return redirect('my-projects-detail',pk)
+
+
+
+@login_required
+def post_problem(request,pk):
+    if request.method == 'POST':
+        problem = json.loads(request.body)['problem']
+        Problems.objects.create(project_id=pk,author=request.user ,problem=problem)
+        return redirect('my-projects-detail',pk)
+    return redirect('my-projects-detail',pk)
+
+@login_required
+def edit_problem(request,pk):
+    if request.method == 'POST':
+        problem = json.loads(request.body)['problem']
+        Problems.objects.filter(pk=pk).update(problem=problem)
+        pk = Problems.objects.get(pk=pk).project.pk
+        return redirect('my-projects-detail',pk)
+    return redirect('my-projects-detail',pk)
+
+
+@login_required
+def delete_problem(request,pk):
+    Problems.objects.filter(pk=pk).delete()
+    pk = Problems.objects.get(pk=pk).project.pk
+    return redirect('my-projects-detail',pk)
+
+@login_required
+def add_team_member(request,pk):
+    form = PermittedProjectsForm()
+    if request.method == 'POST':
+        form = PermittedProjectsForm(request.POST)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.project = Project.objects.get(pk=pk)
+            form.save()
+        return redirect('my-projects-detail',pk)
+    return render(request,'add_project_member.html',context={'form':form})
+
+
+@login_required
+def remove_team_member(request,pk):
+    form = PermittedProjectsForm()
+    if request.method == 'POST':
+        form = PermittedProjectsForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data.get('user')
+            PermittedProjects.objects.filter(project=pk,user=user).delete()
+        return redirect('my-projects-detail',pk)
+    return render(request,'remove_project_member.html',context={'form':form})

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     {% load filters %}
-    <section class="content">
+    <section class="content bg-light">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Loyihalar</h3>
@@ -11,26 +11,34 @@
                             class="fa-solid fa-circle-plus btn btn-outline-dark"></i></a>
                 </div>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body p-0" style="overflow-x: auto">
                 <table class="table table-striped projects">
                     <thead>
                     <tr>
-                        <th style="width: 1%">
+                        <th scope="col">
                             No
                         </th>
-                        <th style="width: 20%">
+                        <th scope="col">
                             Loyiha nomi
                         </th>
-                        <th style="width: 30%">
-                            Loyiha kuratori
+                        <th scope="col">
+                            Loyiha haqida
                         </th>
-                        <th>
-                            Loyiha bajarilganlik darajasi
+                        <th scope="col">
+                            Tashabbuskor departament
                         </th>
-                        <th style="width: 8%" class="text-center">
-                            Budgeti
+
+                                          <th scope="col" class="text-center" style="width: 10%">
+                            Muddati
+
                         </th>
-                        <th style="width: 20%">
+                                                                  <th scope="col">
+                            Summasi
+
+                        </th>
+                                                                                          <th scope="col" class="text-center">
+                            Biriktirilgan xodim
+
                         </th>
 
                     </tr>
@@ -42,61 +50,47 @@
                                 {{ forloop.counter }}
                             </td>
                             <td>
-                                <a>
+                                <a href="{% url 'get-project' project.pk %}" style="color: black">
                                     {{ project.project_name }}
                                 </a>
-                                <br/>
-                                <small>
-                                    <strong>Boshlandi : </strong> {{ project.project_start_date | format_date }}<br>
-                                    <strong>Tugaydi : </strong> {{ project.project_deadline | format_date }}
-                                </small>
                             </td>
                             <td>
-                                <div class="list-inline row">
-                                    <div class="col-2 text-center">
-                                        {{ project.project_departments | to_str }}
-                                        <img style="max-width: 40px" src="{{ project.project_curator.avatar.url }}">
+                                {{ project.project_description }}
+                            </td>
+                            <td >
+                                {{ project.project_department }}
+                            </td>
+                                                                                    <td class="project-state">
+                                <p>{{ project.project_deadline | date:"m, d, Y" }}</p>
+                            </td>
 
-                                    </div>
-                                    <div class="col-10">
-                                        <p>{{ project.project_curator.get_full_name }}</p>
+                                                                                                         <td class="project-state">
+                                <p>{{ project.project_budget}}</p>
+                            </td>
 
-                                    </div>
-                                </div>
+                                                                                                                            <td class="project-state">
+                                <p>{{ project.project_curator.get_full_name}}</p>
                             </td>
-                            <td class="project_progress">
-                                <div class="progress progress-sm">
-                                    <div class="progress-bar {% if project.project_status == 'Yangi' %} bg-white {% elif project.project_status == 'Jarayonda' %} bg-yellow {% elif project.project_status == 'Tugatilgan' %}bg-green{% endif %}"
-                                         role="progressbar" aria-valuenow="{{ project.project_done_percentage }}"
-                                         aria-valuemin="0" aria-valuemax="100"
-                                         style="width: {{ project.project_done_percentage }}%">
-                                    </div>
-                                </div>
-                                <small>
-                                    {{ project.project_done_percentage }}%<br>
-                                    <strong>{{ project.project_status }}</strong>
-                                </small>
-                            </td>
-                            <td class="project-state">
-                                <p>{{ project.project_budget }}</p>
-                            </td>
+                            
                             <td class="project-actions text-right">
-                                <a class="btn btn-primary btn-sm" href="{% url 'my-projects-detail' project.pk %}">
-                                    <i class="fas fa-folder">
-                                    </i>
-                                    Batafsil
-                                </a>
-                                <a class="btn btn-info btn-sm" href="{% url 'update-project' project.pk %}">
-                                    <i class="fas fa-pencil-alt">
-                                    </i>
-                                    Tahrirlash
-                                </a>
-                                <button id="{{ project.pk }}" type="button" class="btn btn-danger btn-sm delete-button" data-toggle="modal"
-                                        data-target="#myModal">
-                                    <i class="fas fa-trash">
-                                    </i>
-                                    O'chirish
-                                </button>
+<ul style="list-style: none">
+    <li>
+        <a class="btn btn-primary btn-sm" href="{% url 'my-projects-detail' project.pk %}">
+            <i class="fas fa-folder"></i> 
+        </a>
+    </li>
+    <li>
+        <a class="btn btn-info btn-sm" href="{% url 'update-project' project.pk %}">
+            <i class="fas fa-pencil-alt"></i>
+        </a>
+    </li>
+    <li>
+        <button id="{{ project.pk }}" type="button" class="btn btn-danger btn-sm delete-button" data-toggle="modal" data-target="#myModal">
+            <i class="fas fa-trash"></i>
+        </button>
+    </li>
+</ul>
+
                             </td>
                         </tr>
                     {% endfor %}
@@ -104,21 +98,22 @@
                 </table>
             </div>
         </div>
-<div id="myModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
 
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Chindan ham loyihani o'chirasizmi ?</h4>
-      </div>
-      <div class="modal-footer">
-        <button id="confirm" type="button" class="btn btn-primary" data-dismiss="modal">Ha</button>
-        <button id="cancel" type="button" class="btn btn-danger" data-dismiss="modal">Bekor qilish</button>
-      </div>
-    </div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Chindan ham loyihani o'chirasizmi ?</h4>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="confirm" type="button" class="btn btn-primary" data-dismiss="modal">Ha</button>
+                        <button id="cancel" type="button" class="btn btn-danger" data-dismiss="modal">Bekor qilish
+                        </button>
+                    </div>
+                </div>
 
-  </div>
-</div>
+            </div>
+        </div>
 
     </section>
 

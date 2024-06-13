@@ -11,9 +11,7 @@ from hodimlar.models import *
 @cache_page(60 * 15)
 def home(request):
     if request.user.is_authenticated:
-        user = User.objects.get(username=request.user.username)
-        if user.status != 'Active':
-            return redirect('blocked-page')
+        user = User.objects.get(pk=request.user.pk)
         users = User.objects.all()
         labels = {}
         departments = Department.objects.all()
