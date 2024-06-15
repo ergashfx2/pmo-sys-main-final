@@ -77,6 +77,7 @@ class Project(models.Model):
 class Phase(models.Model):
     project = models.ForeignKey(Project, models.CASCADE)
     phase_name = models.CharField(max_length=250)
+    phase_deadline = models.DateField()
     phase_done_percentage = models.CharField(max_length=20, default=0)
 
     def update_phase_done_percentage(self):
@@ -93,6 +94,8 @@ class Phase(models.Model):
 
 class Task(models.Model):
     project = models.ForeignKey(Project, models.CASCADE)
+    task_manager = models.ForeignKey(User,models.DO_NOTHING)
+    task_deadline = models.DateField()
     phase = models.ForeignKey(Phase, models.CASCADE)
     task_name = models.CharField(max_length=250)
     task_done_percentage = models.CharField(max_length=20, default=0)

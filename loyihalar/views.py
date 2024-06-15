@@ -13,6 +13,7 @@ from .forms import CreateProjectForm, EditProjectForm, AddFileForm, AddPhaseForm
 from .formsets import TaskFormSet
 from .models import Project, Phase, Task, Documents, Comments, Problems, PermittedProjects
 from django.http import HttpResponse
+from django.core import serializers
 
 import shutil
 
@@ -59,7 +60,15 @@ def all_projects(request):
     projects = Project.objects.all()
     phases = Phase.objects.all()
     tasks = Task.objects.all()
-    return render(request, 'all_projects.html', context={'projects': projects, 'phases': phases, 'tasks': tasks})
+    projects_serialized = serializers.serialize('json', projects)
+    arr = json.loads(projects_serialized)
+    for a in arr:
+        project = Project.objects.get(pk=dict(a)['pk'])
+        fields = dict(a)['fields']
+        fields['project_departments'] = [department.department_name for department in project.project_departments.all()],
+        fields['project_team'] = [man.get_full_name() for man in project.project_team.all()]
+    projects_serialized_modified = json.dumps(arr)
+    return render(request, 'all_projects.html', context={'projects': projects, 'phases': phases, 'tasks': tasks,'projects_serialized': projects_serialized_modified})
 
 
 @login_required
@@ -173,6 +182,7 @@ def DeleteProject(request, pk):
 @login_required
 def add_phase(request, pk):
     data = json.loads(request.body)
+    print(data)
     phase = Phase.objects.create(phase_name=data['phase_name'], project_id=pk)
     for task in data['tasks']:
         Task.objects.create(project_id=pk, phase_id=phase.id, task_name=task)
@@ -357,3 +367,13 @@ def remove_team_member(request,pk):
             PermittedProjects.objects.filter(project=pk,user=user).delete()
         return redirect('my-projects-detail',pk)
     return render(request,'remove_project_member.html',context={'form':form})
+
+
+@login_required
+def filter_table(request):
+    cols = str(request.GET.get('cols')).split(',')
+    datas = []
+    for col in cols:
+        datas.append(Project.objects.values_list(col, flat=True))
+    print(datas)
+    return render(request,'all_projects.html')

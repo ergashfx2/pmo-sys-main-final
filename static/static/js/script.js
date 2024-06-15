@@ -18,33 +18,39 @@ function getCookie(name) {
 
 document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('add-task').addEventListener('click', function () {
+        var randID = crypto.randomUUID()
         var form = document.getElementById('phase-form')
         form.insertAdjacentHTML('beforeend', `<div><label> Task nomini yozing :
-            <input class="form-control mb-4 task-inputs" type="text" name="task">
-            </label><br></div>`);
-    })
+            <input class="form-control mx-1 mb-4 ${randID} task-inputs task_name" type="text" name="task">
+            <label> Masul hodim ismi :
+            <input class="form-control mx-1 mb-4 ${randID} task-manager-inputs" type="text" name="task">
+            </label><label> Tugash sanas :
+            <input class="form-control mx-1 mb-4 ${randID} task-deadline-inputs" type="date" name="task">
+            </label>
+            </label>
+            </div>`);
 
-    document.getElementById('save-all-data').addEventListener('click', function () {
+    })
+   document.getElementById('save-all-data').addEventListener('click', function () {
         var data = {}
         var tasks = []
-        data['phase_name'] = document.getElementById('phase-input').value
-        document.querySelectorAll('.task-inputs').forEach(task => {
-            tasks.push(task.value)
-
+        document.querySelectorAll('.task_inputs').forEach(value => {
+            console.log(value.classList)
         })
+        data['phase_name'] = document.getElementById('phase-input').value
         data['tasks'] = tasks
         var ref = window.location.href
         var token = getCookie('csrftoken')
-        fetch(`${ref}/add-phase/`, {
-            method: "POST",
-            headers: {
-                "Content-type": "application/json",
-                "X-CSRFToken": token
-            },
-            body: JSON.stringify(data),
-        }).then(res => {
-            location.reload()
-        });
+        // fetch(`${ref}/add-phase/`, {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-type": "application/json",
+        //         "X-CSRFToken": token
+        //     },
+        //     body: JSON.stringify(data),
+        // }).then(res => {
+        //     location.reload()
+        // });
 
     })
 
@@ -481,12 +487,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-
-document.addEventListener('DOMContentLoaded',function (){
-    var filter = document.getElementById('filter-table');
-    filter.addEventListener('click',function (){
-        alert('Clicked filter')
+    document.getElementById('filter-table').addEventListener('click',function (){
+        var filter = document.getElementById('filter-container');
+        if (filter.style.display === 'none'){
+            filter.style.display = 'block'
+        }else {
+            filter.style.display = 'none'
+        }
     })
-
-
-})
