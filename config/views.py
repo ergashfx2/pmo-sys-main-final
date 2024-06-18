@@ -8,6 +8,7 @@ from django.views.decorators.cache import cache_page
 User = get_user_model()
 from hodimlar.models import *
 
+
 @cache_page(60 * 15)
 def home(request):
     if request.user.is_authenticated:
@@ -15,7 +16,7 @@ def home(request):
         users = User.objects.all()
         labels = {}
         departments = Department.objects.all()
-        bb= Department.objects.filter(blog_name=10)
+        bb = Department.objects.filter(blog_name=10)
         blogs = Blog.objects.all()
         for blog in blogs:
             blog_departments = 0
@@ -28,11 +29,10 @@ def home(request):
             labels[blog_name] = blog_departments
         labels_object = json.dumps(labels)
 
-        return render(request, 'index.html', {'user': user, 'departments': len(departments), 'labels': labels_object,'users':users})
-    else:
-        return render(request, 'index.html')
+        return render(request, 'index.html',
+                      {'user': user, 'departments': len(departments), 'labels': labels_object, 'users': users})
 
 
 def blockedPage(request):
     if request.user.is_authenticated:
-        return render(request,'blocked_page.html')
+        return render(request, 'blocked_page.html')

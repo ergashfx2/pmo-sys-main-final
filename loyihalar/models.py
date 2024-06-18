@@ -94,7 +94,7 @@ class Phase(models.Model):
 
 class Task(models.Model):
     project = models.ForeignKey(Project, models.CASCADE)
-    task_manager = models.ForeignKey(User,models.DO_NOTHING)
+    task_manager = models.CharField(max_length=150)
     task_deadline = models.DateField()
     phase = models.ForeignKey(Phase, models.CASCADE)
     task_name = models.CharField(max_length=250)

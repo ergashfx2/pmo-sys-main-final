@@ -25,8 +25,10 @@
                         <i id="{{ project.pk }}" data-toggle="modal" data-target="#add-phase"
                            class="fa-solid fa-circle-plus btn btn-outline-dark"></i>
                         {% for p in project %}
-                        <a href="{% url 'add-team-member' p.pk %}" > <i class="fa-solid fa-person-circle-plus btn btn-outline-dark"></i></a>
-                        <a href="{% url 'remove-team-member' p.pk %}"><i class="fa-solid fa-person-circle-minus btn btn-outline-dark"></i></a>
+                            <a href="{% url 'add-team-member' p.pk %}"> <i
+                                    class="fa-solid fa-person-circle-plus btn btn-outline-dark"></i></a>
+                            <a href="{% url 'remove-team-member' p.pk %}"><i
+                                    class="fa-solid fa-person-circle-minus btn btn-outline-dark"></i></a>
                         {% endfor %}
                     </div>
                 </div>
@@ -77,12 +79,15 @@
                                                 <nav class="w-100">
                                                     <div class="nav nav-tabs" id="product-tab" role="tablist">
                                                         <a class="nav-item nav-link active" id="product-desc-tab"
-                                                           data-toggle="tab" style="color: black" href="#project-desc" role="tab"
+                                                           data-toggle="tab" style="color: black" href="#project-desc"
+                                                           role="tab"
                                                            aria-controls="project-desc" aria-selected="true">Loyiha</a>
-                                                        <a class="nav-item nav-link" style="color:#000;" id="product-comments-tab"
+                                                        <a class="nav-item nav-link" style="color:#000;"
+                                                           id="product-comments-tab"
                                                            data-toggle="tab" href="#project-comments" role="tab"
                                                            aria-controls="project-comments" aria-selected="false">Izohlar</a>
-                                                        <a class="nav-item nav-link" style="color: black" id="product-rating-tab"
+                                                        <a class="nav-item nav-link" style="color: black"
+                                                           id="product-rating-tab"
                                                            data-toggle="tab" href="#project-problems" role="tab"
                                                            aria-controls="project-problems" aria-selected="false">Muammolar</a>
                                                     </div>
@@ -127,7 +132,16 @@
                                                                                      id="{{ id }}">
                                                                                     <div class="card-body row">
                                                                                         <div class="col-11">
-                                                                                            <label id="label{{ task.id }}">{{ task.task_name }}</label>
+                                                                                            <table class="table-bordered" style="width: 80dvh">
+                                                                                                <thead style="width: 100%">
+                                                                                                <tr  style="width: 100%">
+                                                                                                    <th class="p-2" style="width: 60%;">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolores expedita incidunt laboriosam laborum neque. Autem cumque delectus ea id quos soluta tempora vero! Minus, quos?</th>
+                                                                                                    <th class="p-2" style="width: 20%;">{{ task.task_deadline | date:"d.m.Y" }}</th>
+                                                                                                    <th class="p-2" style="width: 20%;">{{ task.task_manager }}</th>
+                                                                                                </tr>
+                                                                                                </thead>
+
+                                                                                            </table>
                                                                                             <br><strong>Tugatilganligi
                                                                                             :</strong> {{ task.task_done_percentage }}%
                                                                                         </div>
@@ -174,7 +188,7 @@
                                                                 <div class="card mx-2 w-100">
                                                                     <div class="card-body p-4">
                                                                         <div class="">
-                                                                                                                                                        <div class="row">
+                                                                            <div class="row">
                                                                                 <div class="col-11">
                                                                                     {{ comment.author.get_full_name }}
                                                                                 </div>
@@ -371,17 +385,26 @@
                                             </div>
                                             <div class="modal-body">
                                                 <form method="post" id="phase-form">
+                                                    {% csrf_token %}
                                                     <label> Faza nomini yozing :
                                                         <input class="form-control mb-4" type="text" name="phase"
                                                                id="phase-input">
                                                     </label><br>
+                                                                                                        <label> Faza tugash sanasini yozing :
+                                                        <input class="form-control mb-4" type="date" name="phase-deadline"
+                                                               id="phase-deadline">
+                                                    </label><br>
                                                     <hr>
+                                                    <div id="tasks-container">
+
+                                                    </div>
                                                     <div class="add-task" id="add-task">
                                                         <label>Task qo'shish</label>
                                                         <i class="fa-solid fa-circle-plus"></i>
                                                     </div>
                                                     <hr>
                                                 </form>
+
                                                 <div class="modal-footer">
                                                     <button id="save-all-data" class="btn btn-primary">Saqlash</button>
                                                     <button data-dismiss="modal" class="btn btn-secondary">Bekor

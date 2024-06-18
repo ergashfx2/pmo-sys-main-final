@@ -1,9 +1,10 @@
+import datetime
 import json
 import os.path
 import uuid
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, DeleteView, UpdateView
 from zipfile import ZipFile
@@ -181,12 +182,14 @@ def DeleteProject(request, pk):
 
 @login_required
 def add_phase(request, pk):
-    data = json.loads(request.body)
-    print(data)
-    phase = Phase.objects.create(phase_name=data['phase_name'], project_id=pk)
-    for task in data['tasks']:
-        Task.objects.create(project_id=pk, phase_id=phase.id, task_name=task)
-    return render(request, template_name='my-projects-detail.html')
+    dat = json.loads(request.body)
+    data = dat.get('data')
+    project = get_object_or_404(Project, pk=pk)
+    phase = Phase.objects.create(project=project,phase_name=data['phase_name'],phase_deadline=data['phase_deadline'])
+    for data in data['tasks']:
+        deadline = datetime.datetime.strptime(data['deadline'], '%Y-%m-%d').date()
+        Task.objects.create(project=project,phase=phase,task_name=data['name'],task_deadline=deadline,task_manager=data['manager'])
+    return redirect('my-projects-detail',pk)
 
 
 @login_required

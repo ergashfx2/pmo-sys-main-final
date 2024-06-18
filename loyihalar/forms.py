@@ -112,6 +112,12 @@ class AddTaskForm(forms.ModelForm):
         model = Task
         fields = ['task_name']
 
+class EditTaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['task_name', 'task_deadline', 'task_manager']
+        exclude = ['project']
+
 class PermittedProjectsForm(forms.ModelForm):
     class Meta:
         model = PermittedProjects

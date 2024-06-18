@@ -17,44 +17,77 @@ function getCookie(name) {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById('add-task').addEventListener('click', function () {
-        var randID = crypto.randomUUID()
-        var form = document.getElementById('phase-form')
-        form.insertAdjacentHTML('beforeend', `<div><label> Task nomini yozing :
-            <input class="form-control mx-1 mb-4 ${randID} task-inputs task_name" type="text" name="task">
-            <label> Masul hodim ismi :
-            <input class="form-control mx-1 mb-4 ${randID} task-manager-inputs" type="text" name="task">
-            </label><label> Tugash sanas :
-            <input class="form-control mx-1 mb-4 ${randID} task-deadline-inputs" type="date" name="task">
-            </label>
-            </label>
-            </div>`);
+    const addTaskBtn = document.getElementById('add-task');
+    const tasksContainer = document.getElementById('tasks-container');
+    let taskCount = 0;
 
-    })
-   document.getElementById('save-all-data').addEventListener('click', function () {
-        var data = {}
-        var tasks = []
-        document.querySelectorAll('.task_inputs').forEach(value => {
-            console.log(value.classList)
+    // Object to store phase and tasks
+    let phaseData = {
+        phase_name: '',
+        phase_deadline: '',
+        tasks: []
+    };
+
+    // Add new task fields
+    addTaskBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        taskCount++;
+
+        const taskHTML = `
+            <div class="task" id="task-${taskCount}">
+                <label>Task nomi:
+                    <input type="text" name="tasks[${taskCount}][name]" class="form-control mb-2">
+                </label><br>
+                <label>Muddat:
+                    <input type="date" name="tasks[${taskCount}][deadline]" class="form-control mb-2">
+                </label><br>
+                <label>Menejer:
+                    <input type="text" name="tasks[${taskCount}][manager]" class="form-control mb-2">
+                </label>
+                <button type="button" class="remove-task" data-task-id="${taskCount}">Remove</button>
+                <hr>
+            </div>
+        `;
+
+        tasksContainer.insertAdjacentHTML('beforeend', taskHTML);
+        document.querySelector(`#task-${taskCount} .remove-task`).addEventListener('click', function () {
+            const taskId = this.dataset.taskId;
+            document.getElementById(`task-${taskId}`).remove();
+        });
+    });
+    document.getElementById('phase-input').addEventListener('input', function () {
+        phaseData.phase_name = this.value;
+    });
+        document.getElementById('phase-deadline').addEventListener('input', function () {
+        phaseData.phase_deadline = this.value;
+    });
+    document.getElementById('save-all-data').addEventListener('click', function () {
+        phaseData.tasks = [];
+        const taskDivs = document.querySelectorAll('.task');
+        taskDivs.forEach(taskDiv => {
+            const taskName = taskDiv.querySelector('input[name*="[name]"]').value;
+            const taskDeadline = taskDiv.querySelector('input[name*="[deadline]"]').value;
+            const taskManager = taskDiv.querySelector('input[name*="[manager]"]').value;
+
+            phaseData.tasks.push({
+                name: taskName,
+                deadline: taskDeadline,
+                manager: taskManager
+            });
+        });
+        var token = getCookie('csrftoken');
+        fetch(window.location.href + '/add-phase/',{
+            method : "POST",
+                    headers: {
+                        "Content-type": "application/json",
+                        "X-CSRFToken": token
+                    },
+                    body: JSON.stringify({'data': phaseData }),
+        }).then(res=>{
+            console.log(res)
         })
-        data['phase_name'] = document.getElementById('phase-input').value
-        data['tasks'] = tasks
-        var ref = window.location.href
-        var token = getCookie('csrftoken')
-        // fetch(`${ref}/add-phase/`, {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-type": "application/json",
-        //         "X-CSRFToken": token
-        //     },
-        //     body: JSON.stringify(data),
-        // }).then(res => {
-        //     location.reload()
-        // });
-
-    })
-
-})
+    });
+});
 
     var select = document.getElementById('input-select');
     var array = []
@@ -223,29 +256,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.edit-task-icon').forEach(task => {
         task.addEventListener('click', function () {
             task_id = task.classList[3];
-            label = document.getElementById('label' + task_id)
-            label_text = document.getElementById('label' + task_id).innerText
-            label.innerHTML = `<input id="input${task_id}" type="text" value="${label_text}"/>`
-        })
-
-        document.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                var token = getCookie('csrftoken')
-                var new_value = document.getElementById('input' + task_id).value
-                fetch(`update-task/${task_id}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-type": "application/json",
-                        "X-CSRFToken": token
-                    },
-                    body: JSON.stringify({'task_name': new_value}),
-
-
-                }).then(res => {
-                    location.reload()
-                })
-            }
-
+            alert(task_id)
         })
     })
 })
